@@ -3,7 +3,7 @@
 This is an python3 package for reinforcement learning ros/gazebo environment building, which enables users to control gazebo world reset, get laser, camera, odom info from gazebo world using python codes. The package is based on [openai_ros](https://theconstructcore.bitbucket.io/openai_ros/index.html) but make it compact and easier for beginners.
 
 Related papers: [Narrow Space RL Exploreation](https://arxiv.org/pdf/2209.08349.pdf), [ZebraT Gazebo Simulator](https://arxiv.org/pdf/2205.07944.pdf). Welcome to cite them if this guidance is useful to you.
-## Build your python3 workspace
+## Build your python3 tensorflow2 environment
 First, build python3 env using virtualenv
 
 `virtualenv -p python3 your_env_name`<br>
@@ -15,6 +15,12 @@ then activate it to verify it is built successfully:
 Second, build your workspace compiling with python3 and meanwhile compile
 the tf2_ros with python3. (tf2_ros was originally compiled with python2, 
 so if you do not compile tf2_ros, it could cause issues)
+
+In my case, my python version is 3.6.9 (default python3 version in Ubuntu 18.04), and my tf version is `tensorflow-gpu 2.4.0`, which matches my CUDA version and cudatookit version. Please refer to tensoflow official guidance to download a correct gpu version that is competible to your CUDA and cudatookit version. To check if your gpu can be recognized by tf, `tf.test.is_gpu_available()`.
+
+
+
+
 
 `sudo apt update`<br>
 `sudo apt install python3-catkin-pkg-modules python3-rospkg-modules python3-empy`<br>
