@@ -45,4 +45,4 @@ Execute the following commands:<br>
 
 ## Download ZebraT robot gazebo model (You can use your own model in the same way)
 `cd ~/your_ws/src`<br>
-`git clone https://github.com/Zhaofeng-Tian/rl_ros.git](https://github.com/Zhaofeng-Tian/ZebraT-Simulator.git`<br>
+`git clone https://github.com/Zhaofeng-Tian/ZebraT-Simulator.git`<br>
