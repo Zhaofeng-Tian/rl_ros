@@ -17,7 +17,21 @@ so if you do not compile tf2_ros, it could cause issues)
 
 prepare workspace:
 
-`mkdir -p ~/catkin_ws/src; cd ~/catkin_ws`
+`mkdir -p ~/your_ws/src; cd ~/your_ws`
+`catkin_make`
+`source devel/setup.bash`
+`wstool init`
+`wstool set -y src/geometry2 --git https://github.com/ros/geometry2 -v 0.6.5`
+`wstool up`
+`rosdep install --from-paths src --ignore-src -y -r`
+
+compile workspace for Python3
+
+`catkin_make --cmake-args \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+            -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so`
 
 
 ## Download rl_ros package for python/Gazebo connection
