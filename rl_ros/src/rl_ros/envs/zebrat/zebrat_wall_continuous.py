@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 """
 Author: Zhaofeng Tian
 Email: shoguntian@gmail.com
