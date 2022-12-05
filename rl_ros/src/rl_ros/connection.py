@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+"""
+Author: Zhaofeng Tian
+Email: shoguntian@gmail.com
 
+"""
 import rospy
 from std_srvs.srv import Empty
 from gazebo_msgs.msg import ODEPhysics
