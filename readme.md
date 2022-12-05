@@ -64,4 +64,4 @@ For quick test, do:
 
 `roslaunch rl_ros sac.launch`<br>
 
-and do forget to change possible path variables to your local machine's path.
+and don't forget to change possible path variables to your local machine's path.
