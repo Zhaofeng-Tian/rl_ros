@@ -12,15 +12,13 @@ then activate it to verify it is built successfully:
 
 `source ~/your_env_name/bin/activate`<br>
 
+`pip install ... ` to install all the python packages you need like tensorflow. In my case, my python version is 3.6.9 (default python3 version in Ubuntu 18.04), and my tf version is `tensorflow-gpu 2.4.0`, which matches my CUDA version and cudatookit version. Please refer to tensoflow official guidance to download a correct gpu version that is competible to your CUDA and cudatookit version. To check if your gpu can be recognized by tf, `tf.test.is_gpu_available()`.
+
+## Build your python3 ROS workspace
+
 Second, build your workspace compiling with python3 and meanwhile compile
 the tf2_ros with python3. (tf2_ros was originally compiled with python2, 
 so if you do not compile tf2_ros, it could cause issues)
-
-In my case, my python version is 3.6.9 (default python3 version in Ubuntu 18.04), and my tf version is `tensorflow-gpu 2.4.0`, which matches my CUDA version and cudatookit version. Please refer to tensoflow official guidance to download a correct gpu version that is competible to your CUDA and cudatookit version. To check if your gpu can be recognized by tf, `tf.test.is_gpu_available()`.
-
-
-
-
 
 `sudo apt update`<br>
 `sudo apt install python3-catkin-pkg-modules python3-rospkg-modules python3-empy`<br>
