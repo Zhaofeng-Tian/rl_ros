@@ -1,5 +1,5 @@
 # Reinforcemen Learning with ROS/Gazebo Guidance 
-## rl_ros introduction
+## RL_ROS  python3 package introduction
 This is an python3 package for reinforcement learning ros/gazebo environment building, which enables users to control gazebo world reset, get laser, camera, odom info from gazebo world using python codes. The package is based on [openai_ros](https://theconstructcore.bitbucket.io/openai_ros/index.html) but makes it competible for python3 and more compact, easier for beginners.
 
 Related papers: [Narrow Space RL Exploreation](https://arxiv.org/pdf/2209.08349.pdf), [ZebraT Gazebo Simulator](https://arxiv.org/pdf/2205.07944.pdf). Welcome to cite them if this guidance is useful to you.
