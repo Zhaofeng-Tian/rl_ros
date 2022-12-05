@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Author: Zhaofeng Tian
+Email: shoguntian@gmail.com
+"""
 from pickle import FALSE, TRUE
 import gym
 import numpy as np
