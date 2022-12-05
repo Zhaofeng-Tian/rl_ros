@@ -37,7 +37,7 @@ compile workspace for Python3
 ## Download rl_ros package for python/Gazebo connection
 Execute the following commands:<br>
 `cd ~/your_ws/src`<br>
-`https://github.com/Zhaofeng-Tian/rl_ros.git`<br>
+`git clone https://github.com/Zhaofeng-Tian/rl_ros.git`<br>
 `cd ~/your_ws`<br>
 `catkin_make -j4`<br>
 `source devel/setup.bash`<br>
@@ -45,4 +45,4 @@ Execute the following commands:<br>
 
 ## Download ZebraT robot gazebo model (You can use your own model in the same way)
 `cd ~/your_ws/src`<br>
-`https://github.com/Zhaofeng-Tian/rl_ros.git`<br>
+`git clone https://github.com/Zhaofeng-Tian/rl_ros.git](https://github.com/Zhaofeng-Tian/ZebraT-Simulator.git`<br>
