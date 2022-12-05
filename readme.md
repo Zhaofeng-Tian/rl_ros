@@ -48,3 +48,12 @@ Execute the following commands:<br>
 ## Download ZebraT robot gazebo model (You can use your own model in the same way)
 `cd ~/your_ws/src`<br>
 `git clone https://github.com/Zhaofeng-Tian/ZebraT-Simulator.git`<br>
+To use your model, refer to ZebraT model, you may need to build your worlds and make robot urdf file available, and also have two launch files that resemble "load_env.launch" and "put_robot_in_world.launch" in my ZebraT launch folder. After that you need to configurate envs and algorithms to your model by changing all the related parameters in ROSLauncher(defined in rl_ros.registration and used in envs files), so that the env could find your robot model and launch your designed world as well.
+
+## Envs and Algorithms
+Envs and RL algorithms are stored in folder "envs" and "algorithms", you need to DIY a little for your own applications.
+For quick test, do:
+
+`roslaunch rl_ros sac.launch`<br>
+
+and do forget to change possible path variables to your local machine's path.
