@@ -1,3 +1,9 @@
+
+"""
+Author: Zhaofeng Tian
+Email: shoguntian@gmail.com
+
+"""
 import rospy
 import rospkg
 import numpy as np
