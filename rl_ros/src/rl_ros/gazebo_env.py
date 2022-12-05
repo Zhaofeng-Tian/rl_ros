@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+"""
+Author: Zhaofeng Tian
+Email: shoguntian@gmail.com
+
+"""
+
 import rospy
 import gym
 from gym.utils import seeding
