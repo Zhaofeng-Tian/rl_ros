@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-Author: Zhaofeng Tian
-Email: shoguntian@gmail.com
 
-"""
 import numpy
 import rospy
 import time
@@ -15,7 +11,9 @@ from sensor_msgs.msg import LaserScan
 from sensor_msgs.msg import PointCloud2
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
+from control_msgs.msg import JointControllerState
 from rl_ros.registration import ROSLauncher
+from sensor_msgs.msg import Joy
 
 
 class ZebratEnv(gazebo_env.RobotGazeboEnv):
@@ -48,13 +46,14 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
 
         Args:
         """
+        
         rospy.logdebug("Start ZebratEnv INIT...")
         # Variables that we give through the constructor.
         # None in this case
 
         # We launch the ROSlaunch that spawns the robot into the world
         ROSLauncher(rospackage_name="zebrat",
-                    launch_file_name="put_robot_in_world.launch",
+                    launch_file_name="load_env.launch",
                     ros_ws_abspath=ros_ws_abspath)
 
         # Internal Vars
@@ -87,7 +86,11 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
         #rospy.Subscriber("/camera/depth/points", PointCloud2, self._camera_depth_points_callback)
         #rospy.Subscriber("/camera/rgb/image_raw", Image, self._camera_rgb_image_raw_callback)
         rospy.Subscriber("/scan", LaserScan, self._laser_scan_callback)
-
+        rospy.Subscriber("/zebrat/right_steering_hinge_position_controller/state",JointControllerState, self._steer_state_callback)
+        rospy.Subscriber("/zebrat/left_rear_wheel_velocity_controller/state",JointControllerState, self._speed_state_callback)
+        rospy.Subscriber("/cmd_vel",Twist, self._action_callback) 
+        rospy.Subscriber("/joy", Joy, self._joy_callback)  
+        rospy.Subscriber("zebrat/theta",Float64, self._yaw_callback)
         self._cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
         self._check_publishers_connection()
@@ -98,7 +101,8 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
 
     # Methods needed by the RobotGazeboEnv
     # ----------------------------
-
+        self.joy = None
+        self.yaw = None
 
     def _check_all_systems_ready(self):
         """
@@ -120,6 +124,7 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
         #self._check_camera_depth_points_ready()
         #self._check_camera_rgb_image_raw_ready()
         self._check_laser_scan_ready()
+        self._check_steer_state_ready()
         rospy.logdebug("ALL SENSORS READY")
 
     def _check_odom_ready(self):
@@ -186,8 +191,25 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
             except:
                 rospy.logerr("Current /scan not ready yet, retrying for getting laser_scan")
         return self.laser_scan
+    
+    def _check_steer_state_ready(self):
+        self.steer_state = None
+        rospy.logdebug("Waiting for /steer_state to be READY...")
+        while self.steer_state is None and not rospy.is_shutdown():
+            try:
+                self.steer_state = rospy.wait_for_message("/zebrat/right_steering_hinge_position_controller/state",JointControllerState, timeout=5.0)
+                rospy.logdebug("Current /steer_state READY=>")
 
+            except:
+                rospy.logerr("Current /steer_state not ready yet, retrying for getting steer_state")
+        return self.steer_state
 
+    # ********************    Callback Setters ******************
+    def _yaw_callback(self,data):
+        self.yaw = data.data
+
+    def _joy_callback(self,data):
+        self.joy = [0.6*data.axes[1], 0.6*data.axes[3]]
     def _odom_callback(self, data):
         self.odom = data
 
@@ -202,6 +224,17 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
 
     def _laser_scan_callback(self, data):
         self.laser_scan = data
+    
+    def _steer_state_callback(self, data):
+        self.steer_state = data
+
+    def _speed_state_callback(self,data):
+        self.speed_state = data
+    
+    def _action_callback(self, data):
+        self.action_cmd = [data.linear.x, data.angular.z]
+    # **************************************
+
 
 
     def _check_publishers_connection(self):
@@ -256,7 +289,7 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
 
     # Methods that the TrainingEnvironment will need.
     # ----------------------------
-    def move_base(self, linear_speed, angular_speed, epsilon=0.05, update_rate=10, min_laser_distance=-1):
+    def move_base(self, linear_speed, angular_speed, update_rate=5):
         """
         It will move the base based on the linear and angular speeds given.
         It will wait untill those twists are achived reading from the odometry topic.
@@ -266,13 +299,14 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
         :param update_rate: Rate at which we check the odometry.
         :return:
         """
+        dt = 1/update_rate
         cmd_vel_value = Twist()
         cmd_vel_value.linear.x = linear_speed
         cmd_vel_value.angular.z = angular_speed
         rospy.logdebug("Zebrat Base Twist Cmd>>" + str(cmd_vel_value))
         self._check_publishers_connection()
         self._cmd_vel_pub.publish(cmd_vel_value)
-        time.sleep(0.2)
+        time.sleep(dt)
         #time.sleep(0.02)
         """
         self.wait_until_twist_achieved(cmd_vel_value,
@@ -365,7 +399,11 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
                         robot_has_crashed = True
                         break
         return robot_has_crashed
+    def get_yaw(self):
+        return self.yaw
 
+    def get_joy(self):
+        return self.joy
 
     def get_odom(self):
         return self.odom
@@ -381,6 +419,9 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
 
     def get_laser_scan(self):
         return self.laser_scan
+    
+    def get_action_cmd(self):
+        return self.action_cmd
 
     def reinit_sensors(self):
         """
@@ -388,3 +429,11 @@ class ZebratEnv(gazebo_env.RobotGazeboEnv):
         the sensors values are forced to be updated with the real data and
 
         """
+    def get_steer_state(self):
+        return self.steer_state
+
+    def get_speed_state(self):
+        return self.speed_state
+    
+    def get_action_cur(self):
+        return self.action_cur

@@ -1,3 +1,4 @@
+from dis import dis
 import rospy
 import rospkg
 import numpy as np
@@ -9,8 +10,9 @@ from rl_ros.registration import LoadYamlFileParamsTest
 from rl_ros.registration import ROSLauncher
 import os
 import math
+from collections import deque
 
-class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
+class ZebratPoseEnv(zebrat_env.ZebratEnv):
     def __init__(self):
         """
         This Task Env is designed for having the zebrat in some kind of maze.
@@ -34,7 +36,7 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
                                yaml_file_name="zebrat_wall.yaml")
 
         # Here we will add any init functions prior to starting the MyRobotEnv
-        super(ZebratWallContinuousEnv, self).__init__(ros_ws_abspath)
+        super(ZebratPoseEnv, self).__init__(ros_ws_abspath)
         # ***************************************************************************
         # ***************************************************************************
         # ***************************************************************************
@@ -55,14 +57,13 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
         300 * 300 Gray image
 
         """
-        self.observation_space = spaces.Box(low=0, high=6, shape=(32,), dtype=np.float32)
-        self.des_p = [0.0, 2.0] # 23_2
-        # self.des_p = [3.9,-9.1] # 23_1
-        # self.des_p = [12.0,5.3] # t2 right
-        # self.des_p = [3.0,7.0] # t2 mid
-        self.check_range = 8.0
-        # self.des_p = [33.,0.0]
-        # self.des_p = [7.5,2.5]
+        self.observation_space = spaces.Box(low=0, high=6, shape=(34,), dtype=np.float32)
+
+        self.position_check = [0.0, 0.0]
+
+
+
+
 
         # We set the reward range, which is not compulsory but here we do it.
         self.reward_range = (-np.inf, np.inf)
@@ -145,6 +146,11 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
 
         self.discretized_laser_scan= []
 
+    def get_des_poses(self):
+        return self.des_poses
+    def get_pre_distance(self):
+        return self.pre_distance
+
     def _set_init_pose(self):
         """Sets the Robot in its init pose
         """
@@ -161,13 +167,17 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
         of an episode.
         :return:
         """
+        # self.des_poses = deque([[1.0,0.0,0.0],[2.0,0.0,0.0],[3.0,0.0,0.0],[5.5,0.0,0.0],[6.78,-0.35,-0.48],[9,-0.31,0.756],[12.0,0.0,0.0],[21.5,0.0,0.0],[35.0,0.0,1.57],[21.5,2.0,3.13],[12.0,2.0,3.13],[5.5,2.0,3.13],[2.0,2.0,3.13]])
+        # self.des_poses = deque([[-14,12,2.0],[-18,-3,-1.5708]])
+        self.des_poses = deque([[-14,1,1.66],[-11.64,7.21,1.47],[-13.24,12.48,2.13],[-14.1,13.18,2.74],[-16.77,12.92,-2.8],[-17.67,12.48,-2.63],[-22.33,8.38,6.57],[-23.10,4.29,-1.64],[-21.56,-1,-1.11]])
+        self.pre_distance = 0.5
         # For Info Purposes
         self.cumulated_reward = 0.0
         # Set to false Done, because its calculated asyncronously
         self._episode_done = False
 
         odometry = self.get_odom()
-        self.previous_distance_from_des_point = self.get_distance_from_desired_point(odometry.pose.pose.position)
+        # self.previous_distance_from_des_point = self.get_distance_from_desired_point(odometry.pose.pose.position)
 
 
     def _set_action(self, action):
@@ -201,9 +211,22 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
         
 
         # We get the odometry so that SumitXL knows where it is.
-        '''odometry = self.get_odom()
+        odometry = self.get_odom(); theta = self.get_yaw()
         x_position = odometry.pose.pose.position.x
-        y_position = odometry.pose.pose.position.y'''
+        y_position = odometry.pose.pose.position.y
+        reletive_pose = []
+        distance = ((self.des_poses[0][0]-x_position)**2+(self.des_poses[0][1]-y_position)**2)**0.5
+
+        if distance >= 6.0:
+            distance = 6.0
+        
+        angle = self.des_poses[0][2]-theta
+        if theta > 3.14:
+            theta = theta-6.28
+        if theta < -3.14:
+            theta = theta+6.28
+        reletive_pose.append(distance)
+        reletive_pose.append(angle)
 
         # We round to only two decimals to avoid very big Observation space
         #odometry_array = [round(x_position, 1),round(y_position, 1)]
@@ -212,7 +235,7 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
         #observations = discretized_laser_scan + odometry_array
 
         self.discretized_laser_scan = self.discretize_observation(laser_scan)
-        observations = self.discretized_laser_scan
+        observations = self.discretized_laser_scan + reletive_pose
 
         rospy.logdebug("Observations==>"+str(observations) + '   The length is: '+ str(len(observations)))
         rospy.logdebug("END Get Observation ==>")
@@ -243,7 +266,7 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
 
         for i, item in enumerate(discretized_data):
             #if (i%mod==0):
-            if item == float ('Inf') or np.isinf(item) or item >=6.0:
+            if item == float ('Inf') or np.isinf(item) or item >= 6.0:
                 discretized_ranges.append(self.max_laser_value)
             elif np.isnan(item):
                 discretized_ranges.append(self.min_laser_value)
@@ -343,9 +366,10 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
                     # We see if it got to the desired point
                     #if self.is_in_desired_position(current_position):
                     #obs = self.discretized_laser_scan
-                    obs = self.discretize_observation(self.get_laser_scan())
+                    # obs = self.discretize_observation(self.get_laser_scan())
                     #if obs[3]+ obs[4] + obs[5] + obs[6]+ obs[7] >= 5 * self.max_laser_value:
-                    if ((x_position-self.des_p[0])**2+(y_position-self.des_p[1])**2)**0.5 <= 1 or obs[20] + obs[12]  >= self.check_range:
+                    if len(self.des_poses) == 0:
+                    #     270   243  180  117  90
                         self._episode_done = True
 
 
@@ -366,14 +390,18 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
 
         observations = self.discretize_observation(self.get_laser_scan())       
         gap_ranges = []
+        distance_change = 0.0
         crash = False
+        arrive = False
         reward = 0
         reward1 = 0
         reward2 = 0
         reward3 = 0
         reward4 = 0
+        reward5 = 0
         self.crash = 'Not Crash'
         if not done:
+
             
             for i in range(len(observations)):
             
@@ -386,7 +414,23 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
                     self.crash = 'Crash'
                     rospy.logerr
 
-            if crash != True:
+            if crash!=True:
+                odometry = self.get_odom()
+                x_position = odometry.pose.pose.position.x
+                y_position = odometry.pose.pose.position.y
+                cur_distance = ((self.des_poses[0][0]-x_position)**2+(self.des_poses[0][1]-y_position)**2)**0.5
+                distance_change = self.pre_distance-cur_distance
+                if distance_change >= 0.6:
+                    distance_change = 0.6
+                self.pre_distance = cur_distance
+                if cur_distance <= 1:
+                    # Reconized as arrived
+                    arrive = True
+                    self.des_poses.popleft()
+                    reward = 50
+
+            if crash != True and arrive != True:
+                reward5 = 100* distance_change
                 
                 # **************************** Part I  Distance ************************************
                 gap_ranges.sort()
@@ -415,19 +459,17 @@ class ZebratWallContinuousEnv(zebrat_env.ZebratEnv):
                 reward4 -= 1
                 rospy.logerr("The reward 4 is:  " + str(reward4))
 
-                reward = reward1 + reward2 + 0*reward3 + reward4
+                # reward = reward1 + reward2 + reward3 + reward4 + reward5
+                reward = reward5
                 rospy.logerr("The reward total for this step is: " + str(reward))
-        # NOt DONE
+        #  DONE
         else:
 
             #if self.is_in_desired_position(current_position):
                 #reward = self.end_episode_points
                 #reward += self.end_episode_points
             #if observations[20] + observations[12]  >= 2 * self.max_laser_value-6:
-            odometry = self.get_odom()
-            x_position = odometry.pose.pose.position.x
-            y_position = odometry.pose.pose.position.y
-            if observations[20] + observations[12]  >= self.check_range or ((x_position-self.des_p[0])**2+(y_position-self.des_p[1])**2)**1 <= 1.1:
+            if len(self.des_poses) == 0:
                 reward = 50
             else:
                 reward = -50
