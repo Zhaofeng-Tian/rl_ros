@@ -4,7 +4,7 @@ This is an python3 package for reinforcement learning ros/gazebo environment bui
 
  <img src="./whole.png" width = "70%" height = "70%" alt="Simulation" align=center />
 
-Related papers: [Narrow Space RL Exploreation](https://arxiv.org/pdf/2209.08349.pdf), [ZebraT Gazebo Simulator](https://arxiv.org/pdf/2205.07944.pdf). Welcome to cite them if this guidance is useful to you.
+Related papers: [Narrow Space RL Exploreation](), [ZebraT Gazebo Simulator](https://arxiv.org/pdf/2205.07944.pdf). Welcome to cite them if this guidance is useful to you.
 ## Build your python3 tensorflow2 environment
 First, build python3 env using virtualenv
 
