@@ -1,5 +1,6 @@
 # Reinforcemen Learning with ROS/Gazebo Guidance 
 
+## Welcome to cite the paper below if this project helps.
 `@INPROCEEDINGS{9844904,
   author={Tian, Zhaofeng and Shi, Weisong},
   booktitle={2022 Fifth International Conference on Connected and Autonomous Driving (MetroCAD)}, 
