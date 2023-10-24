@@ -1,5 +1,8 @@
 # Reinforcemen Learning with ROS/Gazebo Guidance 
 
+## Old repo for PPO and PPO-discrete
+[DQN, DDPG, SAC, PPO, PPO-discrete implementation](https://github.com/Zhaofeng-Tian/RL-Narrow-Space-Exploration)
+
 ## Welcome to cite the paper below if this project helps.
 `@INPROCEEDINGS{9844904,
   author={Tian, Zhaofeng and Shi, Weisong},
