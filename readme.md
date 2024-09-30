@@ -4,15 +4,17 @@
 [DQN, DDPG, SAC, PPO, PPO-discrete implementation](https://github.com/Zhaofeng-Tian/RL-Narrow-Space-Exploration)
 
 ## Welcome to cite the paper below if this project helps.
-`@INPROCEEDINGS{9844904,
-  author={Tian, Zhaofeng and Shi, Weisong},
-  booktitle={2022 Fifth International Conference on Connected and Autonomous Driving (MetroCAD)}, 
-  title={Design and Implement an Enhanced Simulator for Autonomous Delivery Robot}, 
-  year={2022},
+`@INPROCEEDINGS{10607111,
+  author={Tian, Zhaofeng and Liu, Zichuan and Zhou, Xingyu and Shi, Weisong},
+  booktitle={2024 IEEE International Conference on Mobility, Operations, Services and Technologies (MOST)}, 
+  title={Unguided Self-exploration in Narrow Spaces with Safety Region Enhanced Reinforcement Learning for Ackermann-steering Robots}, 
+  year={2024},
   volume={},
   number={},
-  pages={21-29},
-  doi={10.1109/MetroCAD56305.2022.00009}}`
+  pages={260-268},
+  keywords={Location awareness;Learning systems;Noise;Kinematics;Aerospace electronics;Safety;Space exploration;Reinforcement Learning;Narrow Space;Unguided Exploration},
+  doi={10.1109/MOST60774.2024.00035}}
+`
 
 ## RL_ROS  python3 package introduction
 This is an python3 package for reinforcement learning ros/gazebo environment building, which enables users to control gazebo world reset, get laser, camera, odom info from gazebo world using python codes. The package is based on [openai_ros](https://theconstructcore.bitbucket.io/openai_ros/index.html) but makes it competible for python3 & Tensorflow 2.0+ and more compact, easier for beginners.
